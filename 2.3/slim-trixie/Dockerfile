@@ -34,7 +34,7 @@ RUN set -eux \
   && tar -xzf openssl.tar.gz -C /usr/src/openssl --strip-components=1 \
   && rm openssl.tar.gz \
   && cd /usr/src/openssl \
-  && ./config --prefix=/usr/local/ssl --openssldir=/usr/local/ssl shared zlib \
+  && ./config --prefix=/usr/local/ssl --openssldir=/usr/local/ssl no-ssl2 no-ssl3 no-zlib shared enable-cms enable-ec_nistp_64_gcc_128 \
   && make -j"$(nproc)" \
   && make install_sw \
   && rm -rf /usr/src/openssl

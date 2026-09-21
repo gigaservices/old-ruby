@@ -1,0 +1,51 @@
+name: Build and Publish Ruby Images
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+    paths:
+      - '2.*/**'
+      - '.github/workflows/build.yml'
+
+jobs:
+  build:
+
+    name: ${{ matrix.target.ruby_version }}-${{ matrix.target.variant }}
+
+    strategy:
+      matrix:
+        target:
+          - ruby_version: "2.3"
+            variant: "slim-trixie"
+            context: "./2.3/slim-trixie"
+            tags: |
+              2.3
+              2.3.8
+              2.3-slim
+              2.3.8-slim
+              2.3-slim-trixie
+              2.3.8-slim-trixie
+
+    uses: docker/github-builder/.github/workflows/build.yml@v1
+
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    
+    with:
+      output: image
+      push: ${{ github.event_name != 'pull_request' }}
+      platforms: linux/amd64,linux/arm64
+      context: ${{ matrix.target.context }}
+      cache: true
+      cache-scope: max
+      meta-images: ghcr.io/${{ github.repository_owner }}/ruby
+      meta-tags: ${{ matrix.target.tags }}
+
+    secrets:
+      registry-auths: |
+        - registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
